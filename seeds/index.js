@@ -26,8 +26,6 @@ const sample = array => array[Math.floor(Math.random() * array.length)]
 
 const seedDB = async ()=>{
     await Campground.deleteMany({})
-    const c = new Campground({title: 'Purple field'})
-    await c.save()
     for(let i =0;i<50; i++){
         const random100 = Math.floor(Math.random()*100)
         const camp = new Campground({
