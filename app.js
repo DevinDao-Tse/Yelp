@@ -7,7 +7,7 @@ const morgan = require('morgan')
 const ejsMate = require('ejs-mate')
 const catchAsync = require('./utils/catchAsync')
 
-
+//adding comment from laptop
 
 mongoose.connect('mongodb://localhost:27017/yelp-camp', {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true})
 // .then(()=>{
