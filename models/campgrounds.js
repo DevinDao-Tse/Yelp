@@ -5,22 +5,22 @@ const Schema = mongoose.Schema
 
 const CampgroundSchema = new Schema({
     title: String,
-    image:String,
-    price:Number,
-    description:String, 
-    location:String,
-    reviews:[{
-        type:Schema.Types.ObjectId,
+    image: String,
+    price: Number,
+    description: String,
+    location: String,
+    reviews: [{
+        type: Schema.Types.ObjectId,
         ref: 'Review'
     }]
 })
 
-CampgroundSchema.post('findOneAndDelete', async function(camp){
-    console.log(camp)
-    if(camp){
+CampgroundSchema.post('findOneAndDelete', async function (camp) {
+    // console.log(camp)
+    if (camp) {
         await Review.deleteMany({
-            _id : {
-                $in : camp.reviews
+            _id: {
+                $in: camp.reviews
             }
         })
     }
