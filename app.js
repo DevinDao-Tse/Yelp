@@ -13,6 +13,7 @@ const Joi = require('joi')
 const { campgroundSchema, reviewSchema } = require('./joiSchema.js')
 const Review = require('./models/review')
 const cookieParser = require('cookie-parser')
+const flash = require('connect-flash')
 
 
 mongoose.connect(process.env.DB_URL, {
@@ -45,6 +46,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
+app.use(flash())
 const sessionConfig = {
     secret: 'thisisasecret',
     resave: false,
@@ -56,9 +58,15 @@ const sessionConfig = {
     }
 }
 app.use(session(sessionConfig))
+app.use((req, res, next) => {
+    res.locals.success = req.flash('success')
+    res.locals.error = req.flash('error')
+    next()
+})
 
 
 
+//Routes
 app.use('/campgrounds', campgrounds)
 app.use('/campgrounds/:id/reviews', reviews)
 
