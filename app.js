@@ -7,13 +7,12 @@ const methodOverride = require('method-override')
 const morgan = require('morgan')
 const session = require('express-session')
 const ejsMate = require('ejs-mate')
-const catchAsync = require('./utils/catchAsync')
 const ExpressError = require('./utils/ExpressError')
-const Joi = require('joi')
-const { campgroundSchema, reviewSchema } = require('./joiSchema.js')
-const Review = require('./models/review')
 const cookieParser = require('cookie-parser')
 const flash = require('connect-flash')
+const passport = require('passport')
+const LocalStrategy = require('passport-local')
+const User = require('./models/user')
 
 
 mongoose.connect(process.env.DB_URL, {
@@ -33,6 +32,7 @@ db.once("open", () => {
 
 const campgrounds = require('./routes/campgrounds')
 const reviews = require('./routes/reviews')
+const users = require('./routes/user')
 
 const app = express()
 const port = process.env.PORT
@@ -47,6 +47,8 @@ app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(flash())
+
+
 const sessionConfig = {
     secret: 'thisisasecret',
     resave: false,
@@ -64,9 +66,15 @@ app.use((req, res, next) => {
     next()
 })
 
+app.use(passport.initialize())
+app.use(passport.session())
+passport.use(new LocalStrategy(User.authenticate()))
+passport.serializeUser(User.serializeUser())
+passport.deserializeUser(User.deserializeUser())
 
 
 //Routes
+app.use('/', users)
 app.use('/campgrounds', campgrounds)
 app.use('/campgrounds/:id/reviews', reviews)
 
@@ -76,6 +84,9 @@ app.get('/', (req, res) => {
     res.render('home', { home: 'HOME PAGE' })
 })
 
+
+
+
 app.all('*', (req, res, next) => {
     next(new ExpressError('Page not found', 404))
 })
@@ -83,6 +94,7 @@ app.all('*', (req, res, next) => {
 app.use((err, req, res, next) => {
     const { statusCode = 500 } = err
     if (!err.message) err.message = 'Something went wrong'
+    // console.log(err.message)
     res.status(statusCode).render('error', { err })
 })
 

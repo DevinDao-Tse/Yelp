@@ -35,7 +35,17 @@ router.post('/', validateCampground, catchAsync(async (req, res, next) => {
 
 router.get('/:id', catchAsync(async (req, res) => {
     const { id } = req.params
-    const camp = await Campground.findById(id).populate('reviews')
+    // const camp = await Campground.findById(id).populate('reviews')
+    const camp = await Campground.findById(id).populate('reviews').catch(e=>{
+        throw new Error('Invalid Campground')
+                
+    })
+
+    if(!camp){
+        req.flash('error', 'Campground does not exist')
+        return res.redirect('/campgrounds')
+    }
+    
     res.render('campgrounds/show', { camp })
 }))
 
